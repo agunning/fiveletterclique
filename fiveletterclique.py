@@ -4,19 +4,17 @@ def run_flc(dict_path ='words_alpha.txt',output_path='fiveletterclique.txt'):
     start=time.perf_counter()
     with open(dict_path,'r') as f:
         words=np.array([X[:-1] for X in f if len(X)==6])
-    print(time.perf_counter()-start)
     pi=np.array([ 0, 18, 11, 12,  1, 20, 16, 13,  3, 23, 17,  8, 14,  7,  4, 15, 25,
         5,  2,  9,  6, 21, 19, 24, 10, 22])
     raw=pi[words.view('int32').reshape((-1,5))-97]
     dup  = ((raw.reshape((-1,1,5))==raw.reshape((-1,5,1))).sum(axis=(1,2))<6)
     rmduplicates=raw[dup,:]
     balist=(2**rmduplicates).sum(axis=1)
-    balist2,counts=np.unique(np.sort(balist),return_counts=True)
+    balist2,counts=np.unique(balist,return_counts=True)
     words2=words[dup][np.argsort(balist)]
     anagramsl=np.concatenate([[0],np.cumsum(counts)])
     def K(A,B):
         return np.logical_not(B&A.reshape((-1,1)))
-
     exp=2**np.array(range(0,27))
     dexp=2**26-exp
     rs=np.searchsorted(balist2,exp)
@@ -38,7 +36,7 @@ def run_flc(dict_path ='words_alpha.txt',output_path='fiveletterclique.txt'):
         words_list=[]
         for i in range(25,-1,-1):
             uniq,index,counts=np.unique(words[qs[i+1]:qs[i],0],return_index=True,return_counts=True)
-            nz=np.nonzero(K(uniq,balist2[rs[i]:rs[i+1]]))#
+            nz=np.nonzero(K(uniq,balist2[rs[i]:rs[i+1]]))
             if len(nz[0])==0:
                 continue
             repeats=counts[nz[0]]
@@ -55,7 +53,6 @@ def run_flc(dict_path ='words_alpha.txt',output_path='fiveletterclique.txt'):
     for i in range(5):
         G=addword(addtaboo(G))
     outputs=G[:,2:]
-    print(time.perf_counter()-start)
     outputs2=np.searchsorted(balist2,outputs)
     V=anagramsl[1:]-anagramsl[:-1]
     wordsquarelist = np.zeros((V[outputs2].prod(axis=1).sum(),5),dtype='<U5')
