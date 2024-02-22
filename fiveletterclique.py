@@ -66,3 +66,4 @@ def run_flc(dict_path ='words_alpha.txt',output_path='fiveletterclique.txt'):
     with open(output_path, 'w') as f:
         f.write('\n'.join(lines))
     print(time.perf_counter()-start)
+run_flc()
